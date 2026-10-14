@@ -216,6 +216,7 @@ export default function CajasPage() {
       <NuevaCuentaSlideOver
         open={openNuevaCuenta}
         cuentasTransaccionales={cuentasTransaccionales}
+        cuentas={cuentas}
         onClose={() => { setOpenNuevaCuenta(false); qc.invalidateQueries({ queryKey: ['cajas'] }) }}
       />
     </div>
@@ -521,10 +522,12 @@ function TransferenciaSlideOver({
 function NuevaCuentaSlideOver({
   open,
   cuentasTransaccionales,
+  cuentas,
   onClose,
 }: {
   open: boolean
   cuentasTransaccionales: CuentaContable[]
+  cuentas: CuentaFinanciera[]
   onClose: () => void
 }) {
   const [form, setForm] = useState({
@@ -532,12 +535,29 @@ function NuevaCuentaSlideOver({
     tipo: 'EFECTIVO' as 'EFECTIVO' | 'BANCO',
     moneda: 'BOB',
     cuentaContableId: '',
+    saldoInicial: '',
+    cuentaAperturaId: '',
   })
   const [loading, setLoading] = useState(false)
 
   // Cuentas sugeridas de activo disponible (código 1.1)
   const cuentasDisponibles = cuentasTransaccionales.filter(c => c.codigo.startsWith('1.1') || c.codigo.startsWith('1'))
   const lista = cuentasDisponibles.length > 0 ? cuentasDisponibles : cuentasTransaccionales
+
+  // Cuentas disponibles para el asiento de apertura: transaccionales, sin vincular
+  // a otra caja/banco y distintas de la cuenta contable de esta cuenta nueva.
+  // Las de capital (clase 3) van primero porque es lo usual (ej. 3.1 Capital).
+  const vinculadas = new Set(cuentas.map(c => c.cuentaContableId).filter(Boolean))
+  const cuentasApertura = cuentasTransaccionales
+    .filter(c => !vinculadas.has(c.id) && c.id !== form.cuentaContableId)
+    .sort((a, b) => {
+      const a3 = a.codigo.startsWith('3') ? 0 : 1
+      const b3 = b.codigo.startsWith('3') ? 0 : 1
+      return a3 - b3 || a.codigo.localeCompare(b.codigo)
+    })
+
+  const saldo = Number(form.saldoInicial || 0)
+  const requiereApertura = Number.isFinite(saldo) && saldo > 0
 
   const submit = async () => {
     if (!form.nombre.trim()) {
@@ -548,6 +568,24 @@ function NuevaCuentaSlideOver({
       toast.error('Selecciona una cuenta contable vinculada')
       return
     }
+    if (!Number.isFinite(saldo) || saldo < 0) {
+      toast.error('El saldo inicial no puede ser negativo')
+      return
+    }
+    if (requiereApertura) {
+      if (!form.cuentaAperturaId) {
+        toast.error('Un saldo inicial mayor a 0 requiere la cuenta de apertura (ej. 3.1 Capital)')
+        return
+      }
+      if (form.cuentaAperturaId === form.cuentaContableId) {
+        toast.error('La cuenta de apertura debe ser distinta de la cuenta contable de la caja')
+        return
+      }
+      if (cuentasApertura.length === 0) {
+        toast.error('No hay cuentas disponibles para la apertura. Crea primero una cuenta de capital (ej. 3.1)')
+        return
+      }
+    }
 
     setLoading(true)
     try {
@@ -556,9 +594,18 @@ function NuevaCuentaSlideOver({
         tipo: form.tipo,
         moneda: form.moneda,
         cuentaContableId: form.cuentaContableId,
+        // El backend solo necesita estos dos si hay saldo inicial > 0
+        ...(requiereApertura
+          ? { saldoInicial: saldo, cuentaAperturaId: form.cuentaAperturaId }
+          : {}),
       })
-      toast.success('Cuenta creada exitosamente')
-      setForm({ nombre: '', tipo: 'EFECTIVO', moneda: 'BOB', cuentaContableId: '' })
+      toast.success(requiereApertura
+        ? `Cuenta creada con saldo inicial de ${formatCurrency(saldo, form.moneda)}`
+        : 'Cuenta creada exitosamente')
+      setForm({
+        nombre: '', tipo: 'EFECTIVO', moneda: 'BOB',
+        cuentaContableId: '', saldoInicial: '', cuentaAperturaId: '',
+      })
       onClose()
     } catch (e: any) {
       const msg = e.response?.data?.message
@@ -582,7 +629,7 @@ function NuevaCuentaSlideOver({
             style={{ border: '1px solid var(--border-input)' }}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Tipo *</label>
             <select
@@ -629,6 +676,53 @@ function NuevaCuentaSlideOver({
             Debe ser una cuenta transaccional de activo disponible (ej. 1.1.1.01 Caja General)
           </p>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
+              Saldo inicial
+            </label>
+            <input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              placeholder="0.00"
+              value={form.saldoInicial}
+              onChange={e => setForm(f => ({ ...f, saldoInicial: e.target.value }))}
+              className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none"
+              style={{ border: '1px solid var(--border-input)' }}
+            />
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+              Déjalo vacío o en 0 si la cuenta nace sin dinero.
+            </p>
+          </div>
+
+          {requiereApertura && (
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
+                Cuenta de apertura *
+              </label>
+              <select
+                value={form.cuentaAperturaId}
+                onChange={e => setForm(f => ({ ...f, cuentaAperturaId: e.target.value }))}
+                className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none bg-white"
+                style={{ border: '1px solid var(--border-input)' }}
+              >
+                <option value="">Seleccionar cuenta...</option>
+                {cuentasApertura.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.codigo} — {c.nombre}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Genera el asiento: Debe caja / Haber esta cuenta (ej. 3.1 Capital).
+              </p>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={submit}
           disabled={loading}
