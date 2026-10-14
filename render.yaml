@@ -1,0 +1,36 @@
+# Render — ContaBeni frontend (SPA React + Vite)
+#
+# ────────────────────────────────────────────────────────────────
+# OPCIÓN A (la más simple): crear el Static Site a mano en el
+# dashboard de Render con estos valores y BORRAR este archivo:
+#
+#   Build command  : npm install && npm run build
+#   Publish dir    : dist
+#   Env var        : VITE_API_URL = https://contabily-xcw1.onrender.com/api/v1
+#   Redirects/Rewrites (obligatorio para react-router):
+#       Source      : /*
+#       Destination : /index.html
+#       Action      : Rewrite   (¡Rewrite, no Redirect!)
+#
+# OPCIÓN B: en Render → New + → Blueprint → conecta este repo y este
+# archivo crea el static site automáticamente.
+# ⚠️ Las rewrites NO se pueden declarar aquí: añádelas después en
+#    Settings → Redirects/Rewrites del static site.
+#
+# Después de crearlo, copia la URL que te dé Render (p. ej.
+# https://contabeni-frontend.onrender.com) en la variable FRONTEND_URL
+# del Web Service del backend (Contabily) y dale a redeploy: es lo que
+# usa main.ts:31 para el CORS.
+# ────────────────────────────────────────────────────────────────
+
+services:
+  - type: static_site
+    name: contabeni-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Sin esto la app de producción llamaría a /api/v1 sin proxy → 404.
+      # En local sí funciona porque vite.config.ts hace de proxy.
+      - key: VITE_API_URL
+        value: https://contabily-xcw1.onrender.com/api/v1
