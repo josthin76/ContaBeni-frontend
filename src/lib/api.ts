@@ -46,10 +46,15 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    const empresaId = localStorage.getItem('empresaId')
-    if (empresaId) {
-      config.headers['x-empresa-id'] = empresaId
-      config.headers['empresa-id'] = empresaId
+    // El header solo hace falta en rutas con `EmpresaActivaGuard`; en las de
+    // autenticación solo provoca un preflight CORS innecesario.
+    const url = String(config.url ?? '')
+    const esRutaAuth = url.includes('/auth/')
+    if (!esRutaAuth) {
+      const empresaId = localStorage.getItem('empresaId')
+      if (empresaId) {
+        config.headers['x-empresa-id'] = empresaId
+      }
     }
     return config
   },
