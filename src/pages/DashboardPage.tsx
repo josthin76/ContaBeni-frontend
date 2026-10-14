@@ -6,7 +6,7 @@ import { api } from '@/lib/api'
 import { KpiCard } from '@/components/KpiCard'
 import { StatusChip } from '@/components/StatusChip'
 import { AmountCell } from '@/components/AmountCell'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, getTransaccionFecha } from '@/lib/utils'
 import type { CuentaFinanciera, Transaccion } from '@/types'
 
 // Datos simulados para el gráfico hasta integrar el endpoint real de histórico
@@ -210,7 +210,7 @@ export default function DashboardPage() {
               <tbody>
                 {transaccionesList.slice(0, 10).map((tx, i) => (
                   <tr key={tx?.id || i} style={{ borderTop: i > 0 ? '1px solid var(--border-warm)' : 'none' }}>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{formatDate(tx?.fecha || (tx as any)?.creadoEn)}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{formatDate(getTransaccionFecha(tx))}</td>
                     <td className="px-5 py-3 text-xs font-medium max-w-xs truncate" style={{ color: 'var(--text-primary)' }}>{tx?.descripcion || 'Sin descripción'}</td>
                     <td className="px-5 py-3"><StatusChip status={tx?.tipo || 'INGRESO'} /></td>
                     <td className="px-5 py-3"><AmountCell amount={tx?.monto ?? 0} currency={tx?.moneda || 'BOB'} forceColor={tx?.tipo === 'INGRESO' ? 'positive' : 'negative'} /></td>

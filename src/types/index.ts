@@ -42,11 +42,19 @@ export interface Transaccion {
   monto: number | string
   moneda?: string
   descripcion: string
-  fecha: string
+  fecha?: string
+  creadoEn?: string
+  createdAt?: string
   cuentaFinancieraId?: string
   cuentaId?: string
   cuentaNombre?: string
   referencia?: string
+  cuentaFinanciera?: CuentaFinanciera
+  cuenta?: CuentaFinanciera
+  cuentaOrigen?: CuentaFinanciera
+  cuentaDestino?: CuentaFinanciera
+  cuentaOrigenId?: string
+  cuentaDestinoId?: string
 }
 
 export interface CuentaContable {

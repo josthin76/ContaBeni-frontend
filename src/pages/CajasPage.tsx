@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { SlideOver } from '@/components/SlideOver'
 import { StatusChip } from '@/components/StatusChip'
 import { AmountCell } from '@/components/AmountCell'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatDate, formatCurrency, getTransaccionFecha, getTransaccionCuentaNombre } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { CuentaFinanciera, Transaccion, CuentaContable } from '@/types'
 
@@ -180,9 +180,9 @@ export default function CajasPage() {
               ) : (
                 transacciones.map(tx => (
                   <tr key={tx.id} style={{ borderTop: '1px solid var(--border-warm)' }}>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{formatDate(tx.fecha)}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{formatDate(getTransaccionFecha(tx))}</td>
                     <td className="px-5 py-3 text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{tx.descripcion}</td>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{tx.cuentaNombre ?? '—'}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{getTransaccionCuentaNombre(tx, cuentas)}</td>
                     <td className="px-5 py-3"><StatusChip status={tx.tipo} /></td>
                     <td className="px-5 py-3">
                       <AmountCell amount={tx.monto} currency={tx.moneda} forceColor={tx.tipo === 'INGRESO' ? 'positive' : 'negative'} />
@@ -235,7 +235,13 @@ function MovimientoSlideOver({
   cuentasTransaccionales: CuentaContable[]
   onClose: () => void
 }) {
-  const [form, setForm] = useState({ monto: '', descripcion: '', cuentaContableId: '', referencia: '' })
+  const [form, setForm] = useState({
+    monto: '',
+    descripcion: '',
+    cuentaContableId: '',
+    referencia: '',
+    fecha: new Date().toISOString().slice(0, 10),
+  })
   const [loading, setLoading] = useState(false)
 
   // Filtrar sugerencias de cuentas según tipo (ingresos clase 4, gastos clase 5/costos clase 6)
@@ -263,9 +269,10 @@ function MovimientoSlideOver({
         cuentaContableId: form.cuentaContableId,
         descripcion: form.descripcion.trim() || (tipo === 'INGRESO' ? 'Ingreso a caja' : 'Egreso de caja'),
         referencia: form.referencia.trim() || undefined,
+        fecha: form.fecha,
       })
       toast.success(`${tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'} registrado exitosamente`)
-      setForm({ monto: '', descripcion: '', cuentaContableId: '', referencia: '' })
+      setForm({ monto: '', descripcion: '', cuentaContableId: '', referencia: '', fecha: new Date().toISOString().slice(0, 10) })
       onClose()
     } catch (e: any) {
       const msg = e.response?.data?.message
@@ -278,6 +285,16 @@ function MovimientoSlideOver({
   return (
     <SlideOver open={open} onClose={onClose} title={`Registrar ${tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'}`}>
       <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Fecha *</label>
+          <input
+            type="date"
+            value={form.fecha}
+            onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))}
+            className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none"
+            style={{ border: '1px solid var(--border-input)' }}
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Monto *</label>
           <input
@@ -363,6 +380,7 @@ function TransferenciaSlideOver({
     monto: '',
     descripcion: '',
     referencia: '',
+    fecha: new Date().toISOString().slice(0, 10),
   })
   const [loading, setLoading] = useState(false)
 
@@ -393,9 +411,10 @@ function TransferenciaSlideOver({
         monto: Number(form.monto),
         descripcion: form.descripcion.trim() || 'Transferencia entre cuentas',
         referencia: form.referencia.trim() || undefined,
+        fecha: form.fecha,
       })
       toast.success('Transferencia realizada exitosamente')
-      setForm({ cuentaOrigenId: '', cuentaDestinoId: '', monto: '', descripcion: '', referencia: '' })
+      setForm({ cuentaOrigenId: '', cuentaDestinoId: '', monto: '', descripcion: '', referencia: '', fecha: new Date().toISOString().slice(0, 10) })
       onClose()
     } catch (e: any) {
       const msg = e.response?.data?.message
@@ -441,6 +460,16 @@ function TransferenciaSlideOver({
                 </option>
               ))}
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Fecha *</label>
+          <input
+            type="date"
+            value={form.fecha}
+            onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))}
+            className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none"
+            style={{ border: '1px solid var(--border-input)' }}
+          />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Monto a transferir *</label>

@@ -57,9 +57,9 @@ export default function ContabilidadPage() {
       {tab === 'plan' && <PlanCuentas />}
       {tab === 'diario' && <LibroDiario />}
       {tab === 'mayor' && <LibroMayor />}
-      {tab === 'balance-comprobacion' && <ReporteBalance endpoint="/contabilidad/balance-comprobacion" titulo="Balance de Comprobación" />}
-      {tab === 'estado-resultados' && <ReporteBalance endpoint="/contabilidad/estado-resultados" titulo="Estado de Resultados" />}
-      {tab === 'balance-general' && <ReporteBalance endpoint="/contabilidad/balance-general" titulo="Balance General" />}
+      {tab === 'balance-comprobacion' && <ReporteBalance endpoint="/contabilidad/balance-comprobacion" titulo="Balance de Comprobación" tipo="comprobacion" />}
+      {tab === 'estado-resultados' && <ReporteBalance endpoint="/contabilidad/estado-resultados" titulo="Estado de Resultados" tipo="resultados" />}
+      {tab === 'balance-general' && <ReporteBalance endpoint="/contabilidad/balance-general" titulo="Balance General" tipo="general" />}
     </div>
   )
 }
@@ -801,14 +801,164 @@ function LibroMayor() {
 }
 
 // ─── Reportes ──────────────────────────────────────────────────────────────
-function ReporteBalance({ endpoint, titulo }: { endpoint: string; titulo: string }) {
-  const [desde, setDesde] = useState('')
-  const [hasta, setHasta] = useState(new Date().toISOString().slice(0, 10))
+function toNumber(value: unknown): number {
+  if (value == null || value === '') return 0
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+  if (typeof value === 'string') {
+    const n = Number(value.replace(/,/g, ''))
+    return Number.isFinite(n) ? n : 0
+  }
+  if (typeof value === 'object') {
+    const o = value as Record<string, unknown>
+    return toNumber(o.total ?? o.saldo ?? o.monto ?? o.importe ?? o.amount)
+  }
+  return 0
+}
+
+function unwrapReport(raw: unknown): any {
+  if (!raw || typeof raw !== 'object') return raw
+  const o = raw as Record<string, unknown>
+  if (o.data && typeof o.data === 'object' && !o.cuentas && !o.activo && !o.activos && !o.ingresos && !Array.isArray(raw)) {
+    return o.data
+  }
+  return raw
+}
+
+const META_KEYS = new Set([
+  'id', 'empresaId', 'periodo', 'rango', 'fechaDesde', 'fechaHasta', 'desde', 'hasta',
+  'moneda', 'ok', 'success', 'message', 'statusCode', 'totales', 'total',
+])
+
+function asLineas(source: unknown): any[] {
+  if (!source) return []
+  if (Array.isArray(source)) return source
+  if (typeof source !== 'object') return []
+  const o = source as Record<string, unknown>
+  for (const k of ['cuentas', 'lineas', 'items', 'detalle', 'movimientos', 'filas', 'rows', 'accounts', 'grupos']) {
+    if (Array.isArray(o[k])) return o[k] as any[]
+  }
+  const entries = Object.entries(o).filter(([k, v]) => !META_KEYS.has(k) && v && typeof v === 'object')
+  if (entries.length) {
+    return entries.map(([k, v]) => {
+      const row = v as Record<string, unknown>
+      if (Array.isArray(v)) return { codigo: k, nombre: labelFromKey(k), cuentas: v }
+      return {
+        ...row,
+        codigo: row.codigo ?? k,
+        nombre: row.nombre ?? row.name ?? labelFromKey(k),
+      }
+    })
+  }
+  return []
+}
+
+function labelFromKey(key: string): string {
+  const map: Record<string, string> = {
+    activo: 'Activo',
+    activos: 'Activos',
+    pasivo: 'Pasivo',
+    pasivos: 'Pasivos',
+    patrimonio: 'Patrimonio',
+    patrimonioNeto: 'Patrimonio neto',
+    capital: 'Capital',
+    ingresos: 'Ingresos',
+    gastos: 'Gastos',
+    costos: 'Costos',
+    utilidad: 'Utilidad',
+    perdida: 'Pérdida',
+    debe: 'Debe',
+    haber: 'Haber',
+    saldo: 'Saldo',
+    totalDebe: 'Total debe',
+    totalHaber: 'Total haber',
+  }
+  if (map[key]) return map[key]
+  if (/^\d+(\.\d+)*$/.test(key)) return key
+  return key
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/^\w/, c => c.toUpperCase())
+}
+
+function lineaNombre(row: any): string {
+  const n = row?.nombre ?? row?.cuentaNombre ?? row?.cuenta?.nombre ?? row?.descripcion ?? row?.glosa ?? row?.name
+  if (typeof n === 'string' && n.trim()) return n.trim()
+  const codigo = lineaCodigo(row)
+  return codigo || '—'
+}
+
+function lineaCodigo(row: any): string {
+  const c = row?.codigo ?? row?.cuentaCodigo ?? row?.cuenta?.codigo ?? ''
+  return c == null ? '' : String(c)
+}
+
+function lineaDebe(row: any): number {
+  return toNumber(row?.debe ?? row?.totalDebe ?? row?.debitos ?? row?.movimientoDebe)
+}
+
+function lineaHaber(row: any): number {
+  return toNumber(row?.haber ?? row?.totalHaber ?? row?.creditos ?? row?.movimientoHaber)
+}
+
+function lineaSaldo(row: any): number {
+  return toNumber(row?.saldo ?? row?.saldoActual ?? row?.saldoFinal ?? row?.monto ?? row?.importe ?? row?.total)
+}
+
+function lineaSaldoDeudor(row: any): number {
+  const explicit = row?.saldoDeudor ?? row?.deudor
+  if (explicit != null && explicit !== '') return toNumber(explicit)
+  const saldo = lineaSaldo(row)
+  const naturaleza = String(row?.naturaleza ?? row?.tipo ?? '').toUpperCase()
+  if (naturaleza.includes('DEUD')) return Math.abs(saldo)
+  if (naturaleza.includes('ACRE')) return 0
+  return saldo > 0 ? saldo : 0
+}
+
+function lineaSaldoAcreedor(row: any): number {
+  const explicit = row?.saldoAcreedor ?? row?.acreedor
+  if (explicit != null && explicit !== '') return toNumber(explicit)
+  const saldo = lineaSaldo(row)
+  const naturaleza = String(row?.naturaleza ?? row?.tipo ?? '').toUpperCase()
+  if (naturaleza.includes('ACRE')) return Math.abs(saldo)
+  if (naturaleza.includes('DEUD')) return 0
+  return saldo < 0 ? Math.abs(saldo) : 0
+}
+
+function Money({ amount, emptyZero = false }: { amount: number; emptyZero?: boolean }) {
+  if (emptyZero && !amount) {
+    return <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
+  }
+  return <span className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>{formatCurrency(amount)}</span>
+}
+
+function CuentaCell({ row }: { row: any }) {
+  const nombre = lineaNombre(row)
+  const codigo = lineaCodigo(row)
+  const codigoEsNombre = codigo && (nombre === codigo || /^\d+(\.\d+)*$/.test(nombre))
+  return (
+    <div>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+        {codigoEsNombre ? (row.cuenta?.nombre ?? nombre) : nombre}
+      </p>
+      {codigo && !codigoEsNombre && (
+        <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{codigo}</p>
+      )}
+    </div>
+  )
+}
+
+function ReporteBalance({ endpoint, titulo, tipo }: { endpoint: string; titulo: string; tipo: 'comprobacion' | 'resultados' | 'general' }) {
+  const [desde, setDesde] = useState(() => `${new Date().getFullYear()}-01-01`)
+  const [hasta, setHasta] = useState(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  })
   const [consultar, setConsultar] = useState(false)
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: [endpoint, desde, hasta],
-    queryFn: () => api.get(`${endpoint}?fechaDesde=${desde}&fechaHasta=${hasta}`).then(r => r.data),
+    queryFn: () =>
+      api.get(`${endpoint}?fechaDesde=${desde}&fechaHasta=${hasta}`).then(r => unwrapReport(r.data)),
     enabled: consultar,
   })
 
@@ -820,7 +970,7 @@ function ReporteBalance({ endpoint, titulo }: { endpoint: string; titulo: string
           <input
             type="date"
             value={desde}
-            onChange={e => setDesde(e.target.value)}
+            onChange={e => { setDesde(e.target.value); setConsultar(false) }}
             className="rounded-lg px-3 py-2 text-sm outline-none bg-white"
             style={{ border: '1px solid var(--border-input)' }}
           />
@@ -830,7 +980,7 @@ function ReporteBalance({ endpoint, titulo }: { endpoint: string; titulo: string
           <input
             type="date"
             value={hasta}
-            onChange={e => setHasta(e.target.value)}
+            onChange={e => { setHasta(e.target.value); setConsultar(false) }}
             className="rounded-lg px-3 py-2 text-sm outline-none bg-white"
             style={{ border: '1px solid var(--border-input)' }}
           />
@@ -853,10 +1003,10 @@ function ReporteBalance({ endpoint, titulo }: { endpoint: string; titulo: string
         )}
       </div>
 
-      {isLoading && <div className="animate-pulse h-40 rounded-xl" style={{ background: '#EDE0D4' }} />}
+      {(isLoading || isFetching) && <div className="animate-pulse h-40 rounded-xl" style={{ background: '#EDE0D4' }} />}
 
-      {data && (
-        <div className="rounded-xl bg-white p-8 report-content" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
+      {data && !isFetching && (
+        <div className="rounded-xl bg-white p-6 sm:p-8 report-content" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
           <div className="text-center mb-6 print-header">
             <p className="text-xs mb-1 font-semibold uppercase tracking-wider text-orange-600">ContaBeni</p>
             <h2 className="text-xl font-bold" style={{ fontFamily: 'Sora, sans-serif', color: 'var(--text-primary)' }}>
@@ -867,39 +1017,245 @@ function ReporteBalance({ endpoint, titulo }: { endpoint: string; titulo: string
             </p>
           </div>
 
-          {/* Si es Estado de Resultados */}
-          {data.ingresos && data.gastos ? (
-            <div className="space-y-4 max-w-xl mx-auto">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="font-semibold text-sm">Total Ingresos:</span>
-                <span className="font-bold text-green-700">{formatCurrency(data.ingresos.total ?? data.ingresos)}</span>
-              </div>
-              {data.costos && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="font-semibold text-sm">Total Costos:</span>
-                  <span className="font-bold text-red-700">{formatCurrency(data.costos.total ?? data.costos)}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="font-semibold text-sm">Total Gastos:</span>
-                <span className="font-bold text-red-700">{formatCurrency(data.gastos.total ?? data.gastos)}</span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-t-2 border-gray-900 text-base">
-                <span className="font-bold">Resultado Neto (Utilidad / Pérdida):</span>
-                <span className={`font-bold ${Number(data.utilidad) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  {formatCurrency(data.utilidad)}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <pre className="text-xs p-4 bg-gray-50 rounded-lg overflow-auto whitespace-pre-wrap font-mono" style={{ color: 'var(--text-primary)' }}>
-                {JSON.stringify(data, null, 2)}
-              </pre>
-            </div>
-          )}
+          {tipo === 'resultados' && <EstadoResultadosView data={data} />}
+          {tipo === 'comprobacion' && <BalanceComprobacionView data={data} />}
+          {tipo === 'general' && <BalanceGeneralView data={data} />}
         </div>
       )}
+    </div>
+  )
+}
+
+function GrupoResultados({ titulo, bloque, color }: { titulo: string; bloque: any; color: string }) {
+  const total = toNumber(bloque)
+  const lineas = asLineas(bloque)
+  return (
+    <div>
+      <div className="flex justify-between items-center py-2" style={{ borderBottom: '1px solid var(--border-warm)' }}>
+        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{titulo}</span>
+        <span className="font-bold text-sm" style={{ color }}>{formatCurrency(total)}</span>
+      </div>
+      {lineas.length > 0 && (
+        <div className="pl-3 mb-2">
+          {lineas.map((row, i) => (
+            <div key={i} className="flex justify-between items-start py-1.5 gap-4">
+              <CuentaCell row={row} />
+              <Money amount={lineaSaldo(row) || toNumber(row)} emptyZero />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EstadoResultadosView({ data }: { data: any }) {
+  const ingresos = data.ingresos ?? data.ingreso
+  const costos = data.costos ?? data.costo
+  const gastos = data.gastos ?? data.gasto
+  const utilidad = toNumber(data.utilidad ?? data.resultado ?? data.resultadoNeto)
+  const perdida = toNumber(data.perdida)
+  const neto = utilidad || (perdida ? -perdida : toNumber(ingresos) - toNumber(costos) - toNumber(gastos))
+
+  if (ingresos == null && gastos == null) {
+    return <BalanceComprobacionView data={data} />
+  }
+
+  return (
+    <div className="space-y-1 max-w-2xl mx-auto">
+      <GrupoResultados titulo="Ingresos" bloque={ingresos} color="#2E7D32" />
+      {costos != null && <GrupoResultados titulo="Costos" bloque={costos} color="#C62828" />}
+      <GrupoResultados titulo="Gastos" bloque={gastos} color="#C62828" />
+      <div className="flex justify-between items-center py-3 mt-2" style={{ borderTop: '2px solid #1A1208' }}>
+        <span className="font-bold text-sm">{neto >= 0 ? 'Utilidad neta' : 'Pérdida neta'}</span>
+        <span className="font-bold text-base" style={{ color: neto >= 0 ? '#2E7D32' : '#C62828' }}>
+          {formatCurrency(neto)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function BalanceComprobacionView({ data }: { data: any }) {
+  const lineas = asLineas(data.cuentas ?? data.lineas ?? data.detalle ?? data.items ?? data)
+  const totales = data.totales ?? data.total ?? {}
+  const totalDebe = toNumber(totales.debe ?? totales.totalDebe ?? data.totalDebe) || lineas.reduce((s, r) => s + lineaDebe(r), 0)
+  const totalHaber = toNumber(totales.haber ?? totales.totalHaber ?? data.totalHaber) || lineas.reduce((s, r) => s + lineaHaber(r), 0)
+  const totalDeudor = toNumber(totales.saldoDeudor ?? data.totalSaldoDeudor) || lineas.reduce((s, r) => s + lineaSaldoDeudor(r), 0)
+  const totalAcreedor = toNumber(totales.saldoAcreedor ?? data.totalSaldoAcreedor) || lineas.reduce((s, r) => s + lineaSaldoAcreedor(r), 0)
+  const tieneMovimientos = lineas.some(r => lineaDebe(r) || lineaHaber(r))
+  const tieneSaldos = lineas.some(r => lineaSaldoDeudor(r) || lineaSaldoAcreedor(r) || lineaSaldo(r))
+
+  if (lineas.length === 0) {
+    return <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>Sin movimientos para el período seleccionado</p>
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
+            <th className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Cuenta</th>
+            {tieneMovimientos && (
+              <>
+                <th className="px-4 py-3 text-right text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Debe</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Haber</th>
+              </>
+            )}
+            {tieneSaldos && (
+              <>
+                <th className="px-4 py-3 text-right text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Saldo deudor</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Saldo acreedor</th>
+              </>
+            )}
+            {!tieneMovimientos && !tieneSaldos && (
+              <th className="px-4 py-3 text-right text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Saldo</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {lineas.map((row, i) => (
+            <tr key={i} style={{ borderTop: '1px solid var(--border-warm)' }}>
+              <td className="px-4 py-3"><CuentaCell row={row} /></td>
+              {tieneMovimientos && (
+                <>
+                  <td className="px-4 py-3 text-right"><Money amount={lineaDebe(row)} emptyZero /></td>
+                  <td className="px-4 py-3 text-right"><Money amount={lineaHaber(row)} emptyZero /></td>
+                </>
+              )}
+              {tieneSaldos && (
+                <>
+                  <td className="px-4 py-3 text-right"><Money amount={lineaSaldoDeudor(row)} emptyZero /></td>
+                  <td className="px-4 py-3 text-right"><Money amount={lineaSaldoAcreedor(row)} emptyZero /></td>
+                </>
+              )}
+              {!tieneMovimientos && !tieneSaldos && (
+                <td className="px-4 py-3 text-right"><Money amount={lineaSaldo(row)} /></td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr style={{ borderTop: '2px solid #1A1208', background: 'var(--surface-light)' }}>
+            <td className="px-4 py-3 text-sm font-bold">Totales</td>
+            {tieneMovimientos && (
+              <>
+                <td className="px-4 py-3 text-right"><Money amount={totalDebe} /></td>
+                <td className="px-4 py-3 text-right"><Money amount={totalHaber} /></td>
+              </>
+            )}
+            {tieneSaldos && (
+              <>
+                <td className="px-4 py-3 text-right"><Money amount={totalDeudor} /></td>
+                <td className="px-4 py-3 text-right"><Money amount={totalAcreedor} /></td>
+              </>
+            )}
+            {!tieneMovimientos && !tieneSaldos && <td />}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  )
+}
+
+function pickSeccion(data: any, keys: string[]): any {
+  for (const k of keys) {
+    if (data?.[k] != null) return data[k]
+  }
+  return null
+}
+
+function SeccionBalance({ titulo, bloque }: { titulo: string; bloque: any }) {
+  const lineas = asLineas(bloque)
+  const total = toNumber(bloque?.total ?? bloque?.saldo) || lineas.reduce((s, r) => s + (lineaSaldo(r) || lineaDebe(r) - lineaHaber(r)), 0)
+
+  return (
+    <div className="rounded-lg p-4" style={{ border: '1px solid var(--border-warm)' }}>
+      <h3 className="text-sm font-bold mb-3 uppercase tracking-wide" style={{ fontFamily: 'Sora, sans-serif', color: 'var(--brand-primary)' }}>
+        {titulo}
+      </h3>
+      {lineas.length === 0 ? (
+        <p className="text-xs py-2" style={{ color: 'var(--text-muted)' }}>Sin cuentas</p>
+      ) : (
+        <div className="space-y-1">
+          {lineas.map((row, i) => {
+            const hijas = asLineas(row.cuentas ?? row.lineas ?? row.grupos)
+            const monto = lineaSaldo(row) || toNumber(row.total) || hijas.reduce((s, h) => s + lineaSaldo(h), 0)
+            return (
+              <div key={i}>
+                <div className="flex justify-between items-start gap-3 py-1.5">
+                  <CuentaCell row={row} />
+                  <Money amount={monto} emptyZero />
+                </div>
+                {hijas.length > 0 && (
+                  <div className="pl-4 mb-1">
+                    {hijas.map((h, j) => (
+                      <div key={j} className="flex justify-between items-start gap-3 py-1">
+                        <CuentaCell row={h} />
+                        <Money amount={lineaSaldo(h) || toNumber(h.total)} emptyZero />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <div className="flex justify-between items-center pt-3 mt-2" style={{ borderTop: '1px solid var(--border-warm)' }}>
+        <span className="text-sm font-bold">Total {titulo.toLowerCase()}</span>
+        <span className="text-sm font-bold tabular-nums">{formatCurrency(total)}</span>
+      </div>
+    </div>
+  )
+}
+
+function BalanceGeneralView({ data }: { data: any }) {
+  let activo = pickSeccion(data, ['activo', 'activos', 'assets'])
+  let pasivo = pickSeccion(data, ['pasivo', 'pasivos', 'liabilities'])
+  let patrimonio = pickSeccion(data, ['patrimonio', 'patrimonioNeto', 'capital', 'equity'])
+
+  if (!activo && !pasivo && !patrimonio) {
+    const lineas = asLineas(data.cuentas ?? data.lineas ?? data)
+    if (lineas.length) {
+      activo = lineas.filter(r => String(lineaCodigo(r)).startsWith('1') || String(r.tipo ?? r.clase ?? '').toUpperCase().includes('ACTIV'))
+      pasivo = lineas.filter(r => String(lineaCodigo(r)).startsWith('2') || String(r.tipo ?? r.clase ?? '').toUpperCase().includes('PASIV'))
+      patrimonio = lineas.filter(r => String(lineaCodigo(r)).startsWith('3') || String(r.tipo ?? r.clase ?? '').toUpperCase().includes('PATRIM'))
+    }
+  }
+
+  if (!activo && !pasivo && !patrimonio) {
+    return <BalanceComprobacionView data={data} />
+  }
+
+  const totalActivo = toNumber(activo?.total ?? data.totalActivo ?? data.totalActivos) || asLineas(activo).reduce((s, r) => s + (lineaSaldo(r) || toNumber(r.total)), 0)
+  const totalPasivo = toNumber(pasivo?.total ?? data.totalPasivo ?? data.totalPasivos) || asLineas(pasivo).reduce((s, r) => s + (lineaSaldo(r) || toNumber(r.total)), 0)
+  const totalPatrimonio = toNumber(patrimonio?.total ?? data.totalPatrimonio) || asLineas(patrimonio).reduce((s, r) => s + (lineaSaldo(r) || toNumber(r.total)), 0)
+  const totalPasPat = totalPasivo + totalPatrimonio
+  const cuadrado = Math.abs(totalActivo - totalPasPat) < 0.01
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SeccionBalance titulo="Activo" bloque={activo} />
+        <div className="space-y-4">
+          <SeccionBalance titulo="Pasivo" bloque={pasivo} />
+          <SeccionBalance titulo="Patrimonio" bloque={patrimonio} />
+        </div>
+      </div>
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
+        style={{ background: cuadrado ? 'rgba(46,125,50,0.08)' : 'rgba(198,40,40,0.08)', border: `1px solid ${cuadrado ? '#2E7D32' : '#C62828'}` }}
+      >
+        <div className="text-sm">
+          <span className="font-semibold">Activo: </span>{formatCurrency(totalActivo)}
+          <span className="mx-2" style={{ color: 'var(--text-muted)' }}>·</span>
+          <span className="font-semibold">Pasivo + Patrimonio: </span>{formatCurrency(totalPasPat)}
+        </div>
+        <span className="text-xs font-bold" style={{ color: cuadrado ? '#2E7D32' : '#C62828' }}>
+          {cuadrado ? 'Balance cuadrado' : `Diferencia ${formatCurrency(Math.abs(totalActivo - totalPasPat))}`}
+        </span>
+      </div>
     </div>
   )
 }
