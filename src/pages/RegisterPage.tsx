@@ -1,12 +1,20 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Eye, EyeOff, BookOpen } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
+
+import logotipo from '@/assets/logotipo.jpg'
+import bg1 from '@/assets/1.webp'
+import bg2 from '@/assets/2.jpg'
+import bg3 from '@/assets/3.jpg'
+import bg4 from '@/assets/4.jpg'
+
+const bgImages = [bg1, bg2, bg3, bg4]
 
 const schema = z.object({
   fullName: z.string().min(2, 'Ingresa tu nombre completo'),
@@ -23,8 +31,17 @@ type FormData = z.infer<typeof schema>
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [currentBg, setCurrentBg] = useState(0)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  // Cycle background images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBg(prev => (prev + 1) % bgImages.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -68,38 +85,56 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--surface-light)' }}>
-      {/* Panel izquierdo — ilustración */}
+      {/* Panel izquierdo — slideshow de imágenes */}
       <div
         className="hidden lg:flex flex-col items-center justify-center flex-1 relative overflow-hidden"
-        style={{ background: 'var(--surface-dark)' }}
       >
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 700" preserveAspectRatio="xMidYMid slice">
-          <polygon points="0,700 250,300 500,700" fill="#145e32" opacity="0.25" />
-          <polygon points="0,700 0,400 200,700" fill="#facc15" opacity="0.15" />
-          <polygon points="500,700 300,350 500,400" fill="#0d4a27" opacity="0.2" />
-          <circle cx="380" cy="180" r="120" fill="#facc15" opacity="0.1" />
-          <circle cx="100" cy="550" r="80" fill="#145e32" opacity="0.1" />
-          <rect x="200" y="0" width="2" height="700" fill="#facc15" opacity="0.08" />
-          <rect x="350" y="0" width="1" height="700" fill="#145e32" opacity="0.08" />
-        </svg>
+        {/* Imágenes de fondo con crossfade */}
+        {bgImages.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+            style={{ opacity: currentBg === i ? 1 : 0 }}
+          />
+        ))}
+
+        {/* Overlay oscuro semitransparente */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 z-[1]" />
+
+        {/* Contenido sobre la imagen */}
         <div className="relative z-10 text-center px-8">
           <div className="flex justify-center mb-6">
-            <svg width="80" height="80" viewBox="0 0 48 48" fill="none">
-              <rect x="8" y="6" width="30" height="36" rx="3" fill="#145e32" />
-              <rect x="8" y="6" width="6" height="36" rx="2" fill="#0d4a27" />
-              <rect x="14" y="10" width="20" height="28" rx="1" fill="rgba(248,250,252,0.15)" />
-              <rect x="17" y="15" width="14" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
-              <rect x="17" y="20" width="11" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
-              <rect x="17" y="25" width="14" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
-              <path d="M28 12 C32 8, 38 10, 36 16 C34 20, 28 20, 28 20 C28 20, 28 16, 28 12Z" fill="#16a34a" opacity="0.9" />
-            </svg>
+            <img
+              src={logotipo}
+              alt="ContaBeni"
+              className="h-24 sm:h-28 lg:h-32 w-auto object-contain rounded-lg shadow-lg"
+              style={{ background: 'rgba(255,255,255,0.9)', padding: 12 }}
+            />
           </div>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 800, color: 'var(--text-on-dark)' }}>
-            Conta<span style={{ color: 'var(--brand-secondary)' }}>Beni</span>
+          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 800, color: '#ffffff' }}>
+            Conta<span style={{ color: '#facc15' }}>Beni</span>
           </h1>
-          <p className="mt-3 text-base max-w-xs mx-auto" style={{ color: 'rgba(245,222,179,0.6)' }}>
+          <p className="mt-3 text-base max-w-xs mx-auto" style={{ color: 'rgba(255,255,255,0.75)' }}>
             Crea tu cuenta y empieza a gestionar tu contabilidad hoy mismo.
           </p>
+
+          {/* Indicadores de slide */}
+          <div className="flex justify-center gap-2 mt-6">
+            {bgImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentBg(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: currentBg === i ? 24 : 8,
+                  height: 8,
+                  background: currentBg === i ? '#facc15' : 'rgba(255,255,255,0.4)',
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -108,7 +143,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-sm">
           {/* Logo mobile */}
           <div className="mb-8 lg:hidden flex items-center gap-2">
-            <BookOpen size={28} style={{ color: 'var(--brand-primary)' }} />
+            <img src={logotipo} alt="ContaBeni" className="h-8 w-auto object-contain rounded" />
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800 }}>
               <span style={{ color: 'var(--text-primary)' }}>Conta</span>
               <span style={{ color: 'var(--brand-primary)' }}>Beni</span>
