@@ -787,7 +787,7 @@ function LibroMayor() {
                       <AmountCell amount={m.haber} forceColor="negative" />
                     </td>
                     <td className="px-5 py-3">
-                      <AmountCell amount={m.saldo} />
+                      <AmountCell amount={m.saldoAcumulado} />
                     </td>
                   </tr>
                 ))
