@@ -20,7 +20,7 @@ const navItems = [
   { to: '/app/tipo-cambio',   label: 'Tipo de Cambio',icon: ArrowLeftRight },
 ]
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [collapsed, setCollapsed] = useState(false)
   const { user, empresa, logout } = useAuth()
   const navigate = useNavigate()
@@ -99,6 +99,7 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={onNavigate}
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 mb-0.5 text-sm font-medium transition-all group"
             style={({ isActive }) => ({
               color: isActive ? 'var(--brand-secondary)' : 'var(--text-on-dark)',
@@ -151,7 +152,7 @@ export function Sidebar() {
       {/* Toggle collapse */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 z-10 flex items-center justify-center rounded-full border shadow-md"
+        className="absolute -right-3 top-20 z-10 hidden lg:flex items-center justify-center rounded-full border shadow-md"
         style={{
           width: 24, height: 24,
           background: 'var(--surface-card)',

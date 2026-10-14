@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Building2 } from 'lucide-react'
+import { Building2, Menu } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
 import { getInitials } from '@/lib/utils'
@@ -17,7 +17,7 @@ const breadcrumbs: Record<string, string> = {
   '/app/tipo-cambio':  'Tipo de Cambio',
 }
 
-export function Header() {
+export function Header({ onMenu }: { onMenu?: () => void }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { user, empresa } = useAuth()
@@ -33,7 +33,7 @@ export function Header() {
 
   return (
     <header
-      className="header flex items-center justify-between px-6"
+      className="header flex items-center justify-between px-4 lg:px-6"
       style={{
         height: 64,
         background: 'var(--surface-card)',
@@ -43,15 +43,23 @@ export function Header() {
         zIndex: 40,
       }}
     >
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>ContaBeni</span>
-        <span style={{ color: 'var(--border-input)' }}>/</span>
-        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{currentPage}</span>
+      {/* Izquierda: hamburguesa (solo <lg) + breadcrumb */}
+      <div className="flex items-center gap-1 min-w-0 flex-1">
+        <button
+          onClick={onMenu}
+          className="lg:hidden -ml-1 mr-1 p-2.5 rounded-lg transition-colors hover:bg-gray-100 flex-shrink-0"
+          style={{ color: 'var(--text-primary)' }}
+          aria-label="Abrir menú de navegación"
+        >
+          <Menu size={20} />
+        </button>
+        <span className="text-xs hidden sm:inline" style={{ color: 'var(--text-muted)' }}>ContaBeni</span>
+        <span className="hidden sm:inline" style={{ color: 'var(--border-input)' }}>/</span>
+        <span className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{currentPage}</span>
       </div>
 
       {/* Derecha */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-shrink-0">
         {/* Botón para volver a ver las empresas */}
         <button
           onClick={() => navigate('/empresas')}
@@ -76,7 +84,7 @@ export function Header() {
         {/* Chip tipo de cambio */}
         <button
           onClick={() => navigate('/app/tipo-cambio')}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-transform hover:scale-105 active:scale-95"
+          className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-transform hover:scale-105 active:scale-95"
           style={{ background: 'rgba(234, 179, 8, 0.15)', color: 'var(--brand-primary)' }}
           title="Ver cotización y calculadora de cambio"
         >
