@@ -22,8 +22,8 @@ export function ConfirmDialog({
       <div className="absolute inset-0" style={{ background: 'rgba(26,18,8,0.45)' }} onClick={onClose} />
       <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-2xl" style={{ boxShadow: '0 8px 32px rgba(26,18,8,0.18)' }}>
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 rounded-full p-2" style={{ background: danger ? 'rgba(198,40,40,0.1)' : 'rgba(232,97,10,0.1)' }}>
-            <AlertTriangle size={20} style={{ color: danger ? '#C62828' : '#E8610A' }} />
+          <div className="flex-shrink-0 rounded-full p-2" style={{ background: danger ? 'rgba(198,40,40,0.1)' : 'rgba(234,179,8,0.15)' }}>
+            <AlertTriangle size={20} style={{ color: danger ? '#C62828' : '#eab308' }} />
           </div>
           <div className="flex-1">
             <h3 className="text-base font-bold" style={{ fontFamily: 'Sora, sans-serif', color: 'var(--text-primary)' }}>

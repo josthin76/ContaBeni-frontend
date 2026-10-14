@@ -71,12 +71,12 @@ export default function TipoCambioPage() {
             <span className="text-gray-400">USD / BOB</span>
           </div>
 
-          <div className="rounded-full p-4 mt-2" style={{ background: 'rgba(232,97,10,0.1)' }}>
+          <div className="rounded-full p-4 mt-2" style={{ background: 'rgba(20,94,50,0.1)' }}>
             <TrendingUp size={36} style={{ color: 'var(--brand-primary)' }} />
           </div>
 
           {isLoading ? (
-            <div className="animate-pulse h-20 w-44 rounded-xl bg-orange-100/50" />
+            <div className="animate-pulse h-20 w-44 rounded-xl bg-emerald-100/50" />
           ) : (
             <div className="text-center">
               <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>
@@ -135,7 +135,7 @@ export default function TipoCambioPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <DollarSign size={20} className="text-orange-600" />
+                <DollarSign size={20} className="text-emerald-800" />
                 <h3 className="font-bold text-base" style={{ fontFamily: 'Sora, sans-serif' }}>
                   Calculadora de Conversión
                 </h3>
@@ -144,7 +144,7 @@ export default function TipoCambioPage() {
                 onClick={() =>
                   setModoConversion(m => (m === 'USD_A_BOB' ? 'BOB_A_USD' : 'USD_A_BOB'))
                 }
-                className="text-xs font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-1 p-1 rounded"
+                className="text-xs font-semibold text-emerald-800 hover:text-emerald-900 flex items-center gap-1 p-1 rounded"
               >
                 <ArrowLeftRight size={13} /> Invertir
               </button>
@@ -162,17 +162,17 @@ export default function TipoCambioPage() {
                       value={montoUsd}
                       onChange={e => setMontoUsd(e.target.value)}
                       placeholder="100.00"
-                      className="w-full rounded-lg pl-8 pr-3 py-2 text-base font-bold outline-none border border-gray-300 focus:border-orange-500"
+                      className="w-full rounded-lg pl-8 pr-3 py-2 text-base font-bold outline-none border border-gray-300 focus:border-emerald-600"
                     />
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-200/60">
-                  <p className="text-xs text-orange-900 font-medium">Equivalente en Bolivianos (BOB):</p>
-                  <p className="text-2xl font-extrabold text-orange-950 mt-1" style={{ fontFamily: 'Sora, sans-serif' }}>
+                <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/60">
+                  <p className="text-xs text-emerald-900 font-medium">Equivalente en Bolivianos (BOB):</p>
+                  <p className="text-2xl font-extrabold text-emerald-950 mt-1" style={{ fontFamily: 'Sora, sans-serif' }}>
                     {formatCurrency(resultadoBob, 'BOB')}
                   </p>
-                  <p className="text-[11px] text-orange-800/80 mt-1">
+                  <p className="text-[11px] text-emerald-800/80 mt-1">
                     Calculado a tasa: 1 USD = {tasaActual.toFixed(2)} BOB
                   </p>
                 </div>
@@ -189,7 +189,7 @@ export default function TipoCambioPage() {
                       value={montoBob}
                       onChange={e => setMontoBob(e.target.value)}
                       placeholder="1000.00"
-                      className="w-full rounded-lg pl-9 pr-3 py-2 text-base font-bold outline-none border border-gray-300 focus:border-orange-500"
+                      className="w-full rounded-lg pl-9 pr-3 py-2 text-base font-bold outline-none border border-gray-300 focus:border-emerald-600"
                     />
                   </div>
                 </div>

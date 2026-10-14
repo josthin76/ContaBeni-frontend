@@ -2,21 +2,22 @@
 @import "tailwindcss";
 
 :root {
-  --brand-primary: #E8610A;
-  --brand-secondary: #F4A535;
-  --brand-accent: #C94F0C;
-  --surface-dark: #1A1208;
-  --surface-mid: #2D1E0F;
-  --surface-light: #FDF6EE;
-  --surface-card: #FFFFFF;
-  --text-primary: #1A1208;
-  --text-muted: #7A6352;
-  --text-on-dark: #F5DEB3;
-  --border-warm: #EDE0D4;
-  --border-input: #D1B49A;
-  --green-ok: #2E7D32;
-  --red-err: #C62828;
-  --blue-info: #1565C0;
+  /* Verde Selva Amazónica (Primario - Bandera del Beni) */
+  --brand-primary: #145e32;
+  --brand-secondary: #facc15;
+  --brand-accent: #0d4a27;
+  --surface-dark: #052e16;
+  --surface-mid: #0d4a27;
+  --surface-light: #f8fafc;
+  --surface-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --text-on-dark: #fef08a;
+  --border-warm: #e2e8f0;
+  --border-input: #cbd5e1;
+  --green-ok: #15803d;
+  --red-err: #b91c1c;
+  --blue-info: #0369a1;
 }
 
 * {

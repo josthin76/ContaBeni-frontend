@@ -127,18 +127,18 @@ export default function DashboardPage() {
               <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="ingGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F4A535" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#F4A535" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#145e32" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#145e32" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gasGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#C62828" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#C62828" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#7A6352' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: '#7A6352' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
+                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="ingresos" stroke="#F4A535" strokeWidth={2} fill="url(#ingGrad)" />
+                <Area type="monotone" dataKey="ingresos" stroke="#145e32" strokeWidth={2} fill="url(#ingGrad)" />
                 <Area type="monotone" dataKey="gastos" stroke="#C62828" strokeWidth={2} fill="url(#gasGrad)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
           </div>
           {loadingCuentas ? (
             <div className="space-y-2">
-              {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: '#EDE0D4' }} />)}
+              {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: '#e2e8f0' }} />)}
             </div>
           ) : cuentasList.length === 0 ? (
             <p className="text-xs text-center py-8" style={{ color: 'var(--text-muted)' }}>Sin cajas registradas</p>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
               {cuentasList.map(cuenta => (
                 <div key={cuenta?.id || Math.random()} className="flex items-center gap-3 rounded-lg px-3 py-2.5"
                   style={{ background: 'var(--surface-light)', border: '1px solid var(--border-warm)' }}>
-                  <div className="rounded-md p-1.5" style={{ background: 'rgba(232,97,10,0.1)' }}>
+                  <div className="rounded-md p-1.5" style={{ background: 'rgba(20, 94, 50, 0.1)' }}>
                     {cuenta?.tipo === 'BANCO' ? <Landmark size={14} style={{ color: 'var(--brand-primary)' }} /> : <Wallet size={14} style={{ color: 'var(--brand-primary)' }} />}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -194,7 +194,7 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           {loadingTxs ? (
             <div className="p-5 space-y-3">
-              {[1,2,3,4,5].map(i => <div key={i} className="h-10 rounded animate-pulse" style={{ background: '#EDE0D4' }} />)}
+              {[1,2,3,4,5].map(i => <div key={i} className="h-10 rounded animate-pulse" style={{ background: '#e2e8f0' }} />)}
             </div>
           ) : transaccionesList.length === 0 ? (
             <p className="text-xs text-center py-10" style={{ color: 'var(--text-muted)' }}>Sin transacciones</p>

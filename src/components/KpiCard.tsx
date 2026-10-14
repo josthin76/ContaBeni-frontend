@@ -11,13 +11,13 @@ interface KpiCardProps {
   isLoading?: boolean
 }
 
-export function KpiCard({ title, value, icon, borderColor = '#E8610A', subtitle, trend, isLoading }: KpiCardProps) {
+export function KpiCard({ title, value, icon, borderColor = 'var(--brand-primary)', subtitle, trend, isLoading }: KpiCardProps) {
   if (isLoading) {
     return (
       <div className="rounded-xl bg-white p-5 shadow-sm animate-pulse" style={{ borderTop: `4px solid ${borderColor}` }}>
-        <div className="h-4 w-24 rounded" style={{ background: '#EDE0D4' }} />
-        <div className="mt-3 h-8 w-32 rounded" style={{ background: '#EDE0D4' }} />
-        <div className="mt-2 h-3 w-20 rounded" style={{ background: '#EDE0D4' }} />
+        <div className="h-4 w-24 rounded" style={{ background: '#e2e8f0' }} />
+        <div className="mt-3 h-8 w-32 rounded" style={{ background: '#e2e8f0' }} />
+        <div className="mt-2 h-3 w-20 rounded" style={{ background: '#e2e8f0' }} />
       </div>
     )
   }

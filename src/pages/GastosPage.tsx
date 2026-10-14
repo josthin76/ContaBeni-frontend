@@ -232,7 +232,7 @@ export default function GastosPage() {
         <div className="flex gap-2">
           <button
             onClick={() => setOpenNuevaCat(true)}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all hover:bg-orange-50"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all hover:bg-emerald-50"
             style={{ border: '1px solid var(--brand-primary)', color: 'var(--brand-primary)', background: 'white' }}
           >
             <Tag size={14} /> Nueva categoría
@@ -271,7 +271,7 @@ export default function GastosPage() {
               <span
                 key={c.id}
                 className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
-                style={{ background: 'rgba(232,97,10,0.1)', color: 'var(--brand-primary)' }}
+                style={{ background: 'rgba(20,94,50,0.1)', color: 'var(--brand-primary)' }}
               >
                 <Tag size={12} />
                 {c.nombre}
@@ -493,7 +493,7 @@ function NuevoGastoSlideOver({
             <button
               type="button"
               onClick={onAbrirNuevaCat}
-              className="text-xs font-semibold text-orange-600 hover:underline"
+              className="text-xs font-semibold text-emerald-800 hover:underline"
             >
               + Crear categoría
             </button>

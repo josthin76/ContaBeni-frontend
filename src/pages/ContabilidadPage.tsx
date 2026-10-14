@@ -46,7 +46,7 @@ export default function ContabilidadPage() {
               background: tab === key ? 'var(--brand-primary)' : 'white',
               color: tab === key ? 'white' : 'var(--text-muted)',
               border: tab === key ? 'none' : '1px solid var(--border-warm)',
-              boxShadow: tab === key ? '0 1px 4px rgba(232,97,10,0.3)' : 'none',
+              boxShadow: tab === key ? '0 1px 4px rgba(20,94,50,0.3)' : 'none',
             }}
           >
             {label}
@@ -92,7 +92,7 @@ function PlanCuentas() {
       {isLoading ? (
         <div className="p-5 space-y-2">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-8 rounded animate-pulse" style={{ background: '#EDE0D4' }} />
+            <div key={i} className="h-8 rounded animate-pulse" style={{ background: '#e2e8f0' }} />
           ))}
         </div>
       ) : cuentas.length === 0 ? (
@@ -126,7 +126,7 @@ function CuentaRow({ cuenta, todas, nivel }: { key?: React.Key; cuenta: CuentaCo
   return (
     <div>
       <div
-        className="flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer group transition-colors hover:bg-orange-50/50"
+        className="flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer group transition-colors hover:bg-emerald-50/50"
         style={{ paddingLeft: `${nivel * 20 + 12}px` }}
         onClick={() => hijos.length > 0 && setOpen(!open)}
       >
@@ -152,7 +152,7 @@ function CuentaRow({ cuenta, todas, nivel }: { key?: React.Key; cuenta: CuentaCo
           <span
             className="text-[11px] font-bold px-1.5 py-0.5 rounded"
             title="Cuenta transaccional (acepta movimientos directos)"
-            style={{ background: 'rgba(232,97,10,0.12)', color: 'var(--brand-primary)' }}
+            style={{ background: 'rgba(20,94,50,0.12)', color: 'var(--brand-primary)' }}
           >
             T
           </span>
@@ -404,7 +404,7 @@ function LibroDiario() {
 
                   {expanded === a.id &&
                     lineas.map((l, idx) => (
-                      <tr key={l.id ?? idx} style={{ background: 'rgba(253,246,238,0.7)', borderTop: '1px dashed #EDE0D4' }}>
+                      <tr key={l.id ?? idx} style={{ background: 'rgba(240,253,244,0.7)', borderTop: '1px dashed #e2e8f0' }}>
                         <td />
                         <td className="px-5 py-2 text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
                           {l.cuenta?.codigo ?? l.cuentaCodigo ?? '—'}
@@ -568,7 +568,7 @@ function NuevoAsientoSlideOver({
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Partidas Contables (Debe / Haber)</label>
-            <button onClick={addLinea} className="text-xs font-semibold flex items-center gap-1 text-orange-600 hover:text-orange-700">
+            <button onClick={addLinea} className="text-xs font-semibold flex items-center gap-1 text-emerald-800 hover:text-emerald-900">
               <Plus size={13} /> Agregar línea
             </button>
           </div>
@@ -1003,12 +1003,12 @@ function ReporteBalance({ endpoint, titulo, tipo }: { endpoint: string; titulo: 
         )}
       </div>
 
-      {(isLoading || isFetching) && <div className="animate-pulse h-40 rounded-xl" style={{ background: '#EDE0D4' }} />}
+      {(isLoading || isFetching) && <div className="animate-pulse h-40 rounded-xl" style={{ background: '#e2e8f0' }} />}
 
       {data && !isFetching && (
         <div className="rounded-xl bg-white p-6 sm:p-8 report-content" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
           <div className="text-center mb-6 print-header">
-            <p className="text-xs mb-1 font-semibold uppercase tracking-wider text-orange-600">ContaBeni</p>
+            <p className="text-xs mb-1 font-semibold uppercase tracking-wider text-emerald-800">ContaBeni</p>
             <h2 className="text-xl font-bold" style={{ fontFamily: 'Sora, sans-serif', color: 'var(--text-primary)' }}>
               {titulo}
             </h2>

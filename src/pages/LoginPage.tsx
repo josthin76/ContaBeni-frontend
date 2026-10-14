@@ -54,25 +54,25 @@ export default function LoginPage() {
         style={{ background: 'var(--surface-dark)' }}
       >
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 700" preserveAspectRatio="xMidYMid slice">
-          {/* Formas geométricas abstractas — atardecer del Beni */}
-          <polygon points="0,700 250,300 500,700" fill="#E8610A" opacity="0.18" />
-          <polygon points="0,700 0,400 200,700" fill="#F4A535" opacity="0.12" />
-          <polygon points="500,700 300,350 500,400" fill="#C94F0C" opacity="0.15" />
-          <circle cx="380" cy="180" r="120" fill="#F4A535" opacity="0.08" />
-          <circle cx="100" cy="550" r="80" fill="#E8610A" opacity="0.07" />
-          <rect x="200" y="0" width="2" height="700" fill="#F4A535" opacity="0.06" />
-          <rect x="350" y="0" width="1" height="700" fill="#E8610A" opacity="0.05" />
+          {/* Formas geométricas abstractas — naturaleza del Beni */}
+          <polygon points="0,700 250,300 500,700" fill="#145e32" opacity="0.25" />
+          <polygon points="0,700 0,400 200,700" fill="#facc15" opacity="0.15" />
+          <polygon points="500,700 300,350 500,400" fill="#0d4a27" opacity="0.2" />
+          <circle cx="380" cy="180" r="120" fill="#facc15" opacity="0.1" />
+          <circle cx="100" cy="550" r="80" fill="#145e32" opacity="0.1" />
+          <rect x="200" y="0" width="2" height="700" fill="#facc15" opacity="0.08" />
+          <rect x="350" y="0" width="1" height="700" fill="#145e32" opacity="0.08" />
         </svg>
         <div className="relative z-10 text-center px-8">
           <div className="flex justify-center mb-6">
             <svg width="80" height="80" viewBox="0 0 48 48" fill="none">
-              <rect x="8" y="6" width="30" height="36" rx="3" fill="#E8610A" />
-              <rect x="8" y="6" width="6" height="36" rx="2" fill="#C94F0C" />
-              <rect x="14" y="10" width="20" height="28" rx="1" fill="rgba(253,246,238,0.15)" />
-              <rect x="17" y="15" width="14" height="2" rx="1" fill="rgba(245,222,179,0.4)" />
-              <rect x="17" y="20" width="11" height="2" rx="1" fill="rgba(245,222,179,0.4)" />
-              <rect x="17" y="25" width="14" height="2" rx="1" fill="rgba(245,222,179,0.4)" />
-              <path d="M28 12 C32 8, 38 10, 36 16 C34 20, 28 20, 28 20 C28 20, 28 16, 28 12Z" fill="#2E7D32" opacity="0.9" />
+              <rect x="8" y="6" width="30" height="36" rx="3" fill="#145e32" />
+              <rect x="8" y="6" width="6" height="36" rx="2" fill="#0d4a27" />
+              <rect x="14" y="10" width="20" height="28" rx="1" fill="rgba(248,250,252,0.15)" />
+              <rect x="17" y="15" width="14" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
+              <rect x="17" y="20" width="11" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
+              <rect x="17" y="25" width="14" height="2" rx="1" fill="rgba(254,240,138,0.4)" />
+              <path d="M28 12 C32 8, 38 10, 36 16 C34 20, 28 20, 28 20 C28 20, 28 16, 28 12Z" fill="#16a34a" opacity="0.9" />
             </svg>
           </div>
           <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 800, color: 'var(--text-on-dark)' }}>

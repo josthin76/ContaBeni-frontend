@@ -74,8 +74,8 @@ export default function EmpresasPage() {
           <div className="mb-4 flex items-center justify-between">
             <button
               onClick={() => navigate('/app/dashboard')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors hover:bg-orange-100/50"
-              style={{ color: 'var(--brand-primary)', border: '1px solid rgba(232,97,10,0.2)' }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors hover:bg-emerald-100/50"
+              style={{ color: 'var(--brand-primary)', border: '1px solid rgba(20,94,50,0.2)' }}
             >
               <ArrowLeft size={14} />
               <span>Volver al Dashboard ({empresa.nombre})</span>
@@ -113,13 +113,13 @@ export default function EmpresasPage() {
                 <div className="flex items-center gap-3 mb-2">
                   <div
                     className="flex items-center justify-center rounded-lg"
-                    style={{ width: 40, height: 40, background: 'rgba(232,97,10,0.1)' }}
+                    style={{ width: 40, height: 40, background: 'rgba(20,94,50,0.1)' }}
                   >
                     <Building2 size={20} style={{ color: 'var(--brand-primary)' }} />
                   </div>
                   {(emp.activo ?? emp.activa) && (
                     <span className="ml-auto text-xs font-semibold rounded-full px-2 py-0.5"
-                      style={{ background: 'rgba(232,97,10,0.1)', color: 'var(--brand-primary)' }}>
+                      style={{ background: 'rgba(20,94,50,0.1)', color: 'var(--brand-primary)' }}>
                       Activa
                     </span>
                   )}

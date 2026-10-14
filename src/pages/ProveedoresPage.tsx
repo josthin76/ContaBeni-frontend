@@ -68,7 +68,7 @@ export default function ProveedoresPage() {
               <tr key={p.id} style={{ borderTop: '1px solid var(--border-warm)', opacity: p.activo ? 1 : 0.5 }}>
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center rounded-md" style={{ width: 28, height: 28, background: 'rgba(232,97,10,0.1)' }}>
+                    <div className="flex items-center justify-center rounded-md" style={{ width: 28, height: 28, background: 'rgba(20,94,50,0.1)' }}>
                       <Users size={13} style={{ color: 'var(--brand-primary)' }} />
                     </div>
                     <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{p.nombre}</span>

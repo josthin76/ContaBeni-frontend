@@ -88,7 +88,7 @@ export default function CajasPage() {
       {tab === 'cuentas' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {loadingCuentas ? (
-            [1, 2, 3].map(i => <div key={i} className="animate-pulse h-36 rounded-xl" style={{ background: '#EDE0D4' }} />)
+            [1, 2, 3].map(i => <div key={i} className="animate-pulse h-36 rounded-xl" style={{ background: '#e2e8f0' }} />)
           ) : cuentas.length === 0 ? (
             <div className="col-span-full rounded-xl bg-white p-12 text-center" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
               <Wallet size={36} className="mx-auto mb-3 opacity-30" style={{ color: 'var(--brand-primary)' }} />
@@ -111,7 +111,7 @@ export default function CajasPage() {
               >
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="rounded-lg p-2.5" style={{ background: 'rgba(232,97,10,0.1)' }}>
+                    <div className="rounded-lg p-2.5" style={{ background: 'rgba(20, 94, 50, 0.1)' }}>
                       {cuenta.tipo === 'BANCO' ? (
                         <Landmark size={20} style={{ color: 'var(--brand-primary)' }} />
                       ) : (

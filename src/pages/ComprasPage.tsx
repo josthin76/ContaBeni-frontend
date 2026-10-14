@@ -154,8 +154,8 @@ export default function ComprasPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setDetalleId(c.id)}
-                        className="text-xs rounded-md px-2.5 py-1 font-medium flex items-center gap-1 transition-colors hover:bg-orange-100"
-                        style={{ background: 'rgba(232,97,10,0.1)', color: 'var(--brand-primary)' }}
+                        className="text-xs rounded-md px-2.5 py-1 font-medium flex items-center gap-1 transition-colors hover:bg-emerald-100"
+                        style={{ background: 'rgba(20,94,50,0.1)', color: 'var(--brand-primary)' }}
                         title="Ver detalle"
                       >
                         <Eye size={12} /> Ver
@@ -392,7 +392,7 @@ function NuevaCompraSlideOver({
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Detalle de productos o ítems</label>
-            <button onClick={addLinea} className="text-xs font-semibold flex items-center gap-1 text-orange-600 hover:text-orange-700">
+            <button onClick={addLinea} className="text-xs font-semibold flex items-center gap-1 text-emerald-800 hover:text-emerald-900">
               <Plus size={13} /> Agregar ítem
             </button>
           </div>

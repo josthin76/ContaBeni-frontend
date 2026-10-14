@@ -95,7 +95,7 @@ export default function ProductosPage() {
         (isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="animate-pulse h-36 rounded-xl" style={{ background: '#EDE0D4' }} />
+              <div key={i} className="animate-pulse h-36 rounded-xl" style={{ background: '#e2e8f0' }} />
             ))}
           </div>
         ) : productos.length === 0 ? (
@@ -121,20 +121,20 @@ export default function ProductosPage() {
                   className="rounded-xl bg-white p-5 relative flex flex-col justify-between"
                   style={{
                     boxShadow: '0 2px 8px rgba(26,18,8,0.08)',
-                    borderLeft: stockNum < 10 ? '3px solid #F4A535' : '3px solid transparent',
+                    borderLeft: stockNum < 10 ? '3px solid #eab308' : '3px solid transparent',
                   }}
                 >
                   {stockNum < 10 && (
                     <div
                       className="absolute top-4 right-4 flex items-center gap-1 text-xs font-medium"
-                      style={{ color: '#B07D10' }}
+                      style={{ color: '#b45309' }}
                     >
                       <AlertTriangle size={12} /> Stock bajo
                     </div>
                   )}
                   <div>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="rounded-lg p-2" style={{ background: 'rgba(232,97,10,0.1)' }}>
+                      <div className="rounded-lg p-2" style={{ background: 'rgba(20, 94, 50, 0.1)' }}>
                         <Package size={18} style={{ color: 'var(--brand-primary)' }} />
                       </div>
                       <div>

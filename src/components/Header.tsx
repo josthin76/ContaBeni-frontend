@@ -55,11 +55,11 @@ export function Header() {
         {/* Botón para volver a ver las empresas */}
         <button
           onClick={() => navigate('/empresas')}
-          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:bg-orange-50 active:scale-95 shadow-sm"
+          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:bg-emerald-50 active:scale-95 shadow-sm"
           style={{
-            background: 'rgba(232,97,10,0.08)',
+            background: 'rgba(20, 94, 50, 0.08)',
             color: 'var(--brand-primary)',
-            border: '1px solid rgba(232,97,10,0.25)',
+            border: '1px solid rgba(20, 94, 50, 0.25)',
           }}
           title="Ver y seleccionar empresas"
         >
@@ -77,7 +77,7 @@ export function Header() {
         <button
           onClick={() => navigate('/app/tipo-cambio')}
           className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-transform hover:scale-105 active:scale-95"
-          style={{ background: 'rgba(232,97,10,0.1)', color: 'var(--brand-accent)' }}
+          style={{ background: 'rgba(234, 179, 8, 0.15)', color: 'var(--brand-primary)' }}
           title="Ver cotización y calculadora de cambio"
         >
           <span>USD</span>
