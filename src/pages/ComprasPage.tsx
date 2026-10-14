@@ -229,6 +229,7 @@ function NuevaCompraSlideOver({
   const [form, setForm] = useState({
     proveedorId: '',
     numeroFactura: '',
+    numeroManual: false,
     tipoPago: 'CONTADO' as 'CONTADO' | 'CREDITO',
     cuentaFinancieraId: '',
     moneda: 'BOB',
@@ -270,8 +271,8 @@ function NuevaCompraSlideOver({
       toast.error('Selecciona un proveedor')
       return
     }
-    if (!form.numeroFactura.trim()) {
-      toast.error('Ingresa el número de factura')
+    if (form.numeroManual && !form.numeroFactura.trim()) {
+      toast.error('Ingresa el número de factura o desactiva "Escribir manualmente"')
       return
     }
     if (form.tipoPago === 'CONTADO' && !form.cuentaFinancieraId) {
@@ -291,7 +292,8 @@ function NuevaCompraSlideOver({
     try {
       const payload = {
         proveedorId: form.proveedorId,
-        numeroFactura: form.numeroFactura.trim(),
+        // Vacío → el backend asigna el correlativo automático FC-000001
+        numeroFactura: form.numeroManual ? form.numeroFactura.trim() : undefined,
         tipoPago: form.tipoPago,
         cuentaFinancieraId: form.tipoPago === 'CONTADO' ? form.cuentaFinancieraId : undefined,
         moneda: form.moneda,
@@ -308,6 +310,7 @@ function NuevaCompraSlideOver({
       setForm({
         proveedorId: '',
         numeroFactura: '',
+        numeroManual: false,
         tipoPago: 'CONTADO',
         cuentaFinancieraId: '',
         moneda: 'BOB',
@@ -344,14 +347,33 @@ function NuevaCompraSlideOver({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>N° Factura *</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                N° Factura
+              </label>
+              <label className="flex items-center gap-1.5 text-xs cursor-pointer select-none" style={{ color: 'var(--text-muted)' }}>
+                <input
+                  type="checkbox"
+                  checked={form.numeroManual}
+                  onChange={e => setForm(f => ({ ...f, numeroManual: e.target.checked }))}
+                  className="accent-orange-600"
+                />
+                Escribir manualmente
+              </label>
+            </div>
             <input
-              value={form.numeroFactura}
+              value={form.numeroManual ? form.numeroFactura : ''}
               onChange={e => setForm(f => ({ ...f, numeroFactura: e.target.value }))}
-              placeholder="Ej. FAC-00123"
-              className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none"
+              placeholder={form.numeroManual ? 'Ej. FC-000007' : 'Automático (FC-000001)'}
+              disabled={!form.numeroManual}
+              className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
               style={{ border: '1px solid var(--border-input)' }}
             />
+            {!form.numeroManual && (
+              <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                Se asignará el siguiente correlativo del negocio al registrar la compra.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Tipo de pago *</label>
