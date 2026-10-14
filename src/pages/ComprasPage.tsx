@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Eye, Trash2, ShoppingCart } from 'lucide-react'
 import { api } from '@/lib/api'
 import { SlideOver } from '@/components/SlideOver'
+import { AdjuntarImagen } from '@/components/AdjuntarImagen'
+import { MiniaturaImagen } from '@/components/MiniaturaImagen'
 import { StatusChip } from '@/components/StatusChip'
 import { AmountCell } from '@/components/AmountCell'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -101,7 +103,7 @@ export default function ComprasPage() {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
-              {['Fecha', 'Proveedor', 'N° Factura', 'Tipo', 'Total', 'Estado', 'Acciones'].map(h => (
+              {['Fecha', 'Proveedor', 'N° Factura', 'Tipo', 'Total', 'Estado', 'Foto', 'Acciones'].map(h => (
                 <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
                   {h}
                 </th>
@@ -111,13 +113,13 @@ export default function ComprasPage() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                <td colSpan={8} className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   Cargando compras...
                 </td>
               </tr>
             ) : compras.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-10 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                <td colSpan={8} className="p-10 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   Sin compras registradas aún
                 </td>
               </tr>
@@ -149,6 +151,9 @@ export default function ComprasPage() {
                   </td>
                   <td className="px-5 py-3">
                     <StatusChip status={c.estado} />
+                  </td>
+                  <td className="px-5 py-3">
+                    <MiniaturaImagen src={c.imagen} alt={`Factura ${c.numeroFactura ?? ''}`} />
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex gap-2">
@@ -236,6 +241,7 @@ function NuevaCompraSlideOver({
     detalles: [{ productoId: '', descripcion: '', cantidad: 1, costoUnitario: '' }],
   })
   const [loading, setLoading] = useState(false)
+  const [imagen, setImagen] = useState<string | null>(null)
 
   const total = form.detalles.reduce((s, d) => s + (Number(d.cantidad) || 0) * (Number(d.costoUnitario) || 0), 0)
 
@@ -297,6 +303,7 @@ function NuevaCompraSlideOver({
         tipoPago: form.tipoPago,
         cuentaFinancieraId: form.tipoPago === 'CONTADO' ? form.cuentaFinancieraId : undefined,
         moneda: form.moneda,
+        imagen: imagen ?? undefined,
         detalles: form.detalles.map(d => ({
           productoId: d.productoId || undefined,
           descripcion: d.descripcion.trim(),
@@ -316,6 +323,7 @@ function NuevaCompraSlideOver({
         moneda: 'BOB',
         detalles: [{ productoId: '', descripcion: '', cantidad: 1, costoUnitario: '' }],
       })
+      setImagen(null)
       onClose()
     } catch (e: any) {
       const msg = e.response?.data?.message
@@ -503,6 +511,8 @@ function NuevaCompraSlideOver({
             {formatCurrency(total, form.moneda)}
           </span>
         </div>
+
+        <AdjuntarImagen valor={imagen} onChange={setImagen} etiqueta="Imagen de la factura" />
 
         <button
           onClick={submit}

@@ -137,6 +137,8 @@ export interface Compra {
   cuentaFinancieraId?: string
   detalles?: LineaCompra[]
   lineas?: LineaCompra[]
+  /** Foto de la factura en base64 (data URL); null si no se adjuntó */
+  imagen?: string | null
 }
 
 export interface CategoriaGasto {
@@ -161,6 +163,8 @@ export interface Gasto {
   fecha: string
   estado: 'ACTIVO' | 'ANULADO'
   numeroComprobante?: string
+  /** Foto del comprobante en base64 (data URL); null si no se adjuntó */
+  imagen?: string | null
 }
 
 export interface Producto {

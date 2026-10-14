@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, Tag } from 'lucide-react'
 import { api } from '@/lib/api'
 import { SlideOver } from '@/components/SlideOver'
+import { AdjuntarImagen } from '@/components/AdjuntarImagen'
+import { MiniaturaImagen } from '@/components/MiniaturaImagen'
 import { StatusChip } from '@/components/StatusChip'
 import { AmountCell } from '@/components/AmountCell'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -285,7 +287,7 @@ export default function GastosPage() {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
-              {['Fecha', 'Categoría', 'Descripción', 'Monto', 'Estado', ''].map(h => (
+              {['Fecha', 'Categoría', 'Descripción', 'Monto', 'Estado', 'Foto', ''].map(h => (
                 <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
                   {h}
                 </th>
@@ -295,13 +297,13 @@ export default function GastosPage() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                <td colSpan={7} className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   Cargando gastos...
                 </td>
               </tr>
             ) : gastos.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-10 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                <td colSpan={7} className="p-10 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   Sin gastos registrados aún
                 </td>
               </tr>
@@ -322,6 +324,9 @@ export default function GastosPage() {
                   </td>
                   <td className="px-5 py-3">
                     <StatusChip status={g.estado} />
+                  </td>
+                  <td className="px-5 py-3">
+                    <MiniaturaImagen src={g.imagen} alt={`Comprobante de ${g.descripcion}`} />
                   </td>
                   <td className="px-5 py-3 text-right">
                     {g.estado === 'ACTIVO' && (
@@ -426,6 +431,7 @@ function NuevoGastoSlideOver({
     numeroComprobante: '',
     fecha: new Date().toISOString().slice(0, 10),
   })
+  const [imagen, setImagen] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -462,6 +468,7 @@ function NuevoGastoSlideOver({
         moneda: form.moneda,
         numeroComprobante: form.numeroComprobante.trim() || undefined,
         fecha: form.fecha,
+        imagen: imagen ?? undefined,
       })
       const creado = unwrapEntity<Gasto>(res.data)
       if (creado?.id) onCreated?.(creado)
@@ -475,6 +482,7 @@ function NuevoGastoSlideOver({
         numeroComprobante: '',
         fecha: new Date().toISOString().slice(0, 10),
       })
+      setImagen(null)
       onClose()
     } catch (e: any) {
       const msg = e.response?.data?.message
@@ -598,6 +606,8 @@ function NuevoGastoSlideOver({
             style={{ border: '1px solid var(--border-input)' }}
           />
         </div>
+
+        <AdjuntarImagen valor={imagen} onChange={setImagen} />
 
         <button
           onClick={submit}
