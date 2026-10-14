@@ -16,6 +16,14 @@ import bg4 from '@/assets/4.jpg'
 
 const bgImages = [bg1, bg2, bg3, bg4]
 
+// Ken Burns directions — each image gets a different zoom+pan origin
+const kenBurnsVariants = [
+  { from: 'scale(1)   translate(0, 0)',     to: 'scale(1.15) translate(-2%, -1%)' },
+  { from: 'scale(1.1) translate(2%, 1%)',   to: 'scale(1)    translate(0, 0)' },
+  { from: 'scale(1)   translate(0, 0)',     to: 'scale(1.12) translate(1%, -2%)' },
+  { from: 'scale(1.12) translate(-1%, 2%)', to: 'scale(1)    translate(0, 0)' },
+]
+
 const schema = z.object({
   email: z.string().email('Correo inválido'),
   password: z.string().min(1, 'Ingresa tu contraseña'),
@@ -29,11 +37,10 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  // Cycle background images every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBg(prev => (prev + 1) % bgImages.length)
-    }, 5000)
+    }, 6000)
     return () => clearInterval(interval)
   }, [])
 
@@ -46,7 +53,6 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', data)
       const { user, tokens, access_token, refresh_token } = res.data
-      // El backend puede devolver tokens.accessToken o access_token directamente
       const accessToken = tokens?.accessToken ?? access_token
       const refreshToken = tokens?.refreshToken ?? refresh_token
       login(accessToken, refreshToken, user)
@@ -65,52 +71,51 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--surface-light)' }}>
-      {/* Panel izquierdo — slideshow de imágenes */}
-      <div
-        className="hidden lg:flex flex-col items-center justify-center flex-1 relative overflow-hidden"
-      >
-        {/* Imágenes de fondo con crossfade */}
+      {/* Panel izquierdo — slideshow con Ken Burns */}
+      <div className="hidden lg:flex flex-col items-end justify-end flex-1 relative overflow-hidden">
+        {/* Imágenes con efecto Ken Burns */}
         {bgImages.map((src, i) => (
           <img
             key={i}
             src={src}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
-            style={{ opacity: currentBg === i ? 1 : 0 }}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              opacity: currentBg === i ? 1 : 0,
+              transition: 'opacity 1.5s ease-in-out',
+              transform: currentBg === i ? kenBurnsVariants[i].to : kenBurnsVariants[i].from,
+              transitionProperty: 'opacity, transform',
+              transitionDuration: '1.5s, 6s',
+              transitionTimingFunction: 'ease-in-out, ease-in-out',
+            }}
           />
         ))}
 
-        {/* Overlay oscuro semitransparente */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 z-[1]" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 z-[1]" style={{
+          background: 'linear-gradient(to top, rgba(5,46,22,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.15) 100%)',
+        }} />
 
-        {/* Contenido sobre la imagen */}
-        <div className="relative z-10 text-center px-8">
-          <div className="flex justify-center mb-6">
-            <img
-              src={logotipo}
-              alt="ContaBeni"
-              className="h-24 sm:h-28 lg:h-32 w-auto object-contain rounded-lg shadow-lg"
-              style={{ background: 'rgba(255,255,255,0.9)', padding: 12 }}
-            />
-          </div>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 800, color: '#ffffff' }}>
+        {/* Texto en la parte inferior */}
+        <div className="relative z-10 p-10 w-full">
+          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 800, color: '#ffffff' }}>
             Conta<span style={{ color: '#facc15' }}>Beni</span>
           </h1>
-          <p className="mt-3 text-base max-w-xs mx-auto" style={{ color: 'rgba(255,255,255,0.75)' }}>
-            Sistema de contabilidad diseñado para el empresario beniano. Simple, rápido, confiable.
+          <p className="mt-2 text-sm max-w-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            Plataforma contable digital para el empresario del Beni. Simple, rápido, confiable.
           </p>
 
-          {/* Indicadores de slide */}
-          <div className="flex justify-center gap-2 mt-6">
+          {/* Indicadores */}
+          <div className="flex gap-2 mt-5">
             {bgImages.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentBg(i)}
-                className="rounded-full transition-all duration-300"
+                className="rounded-full transition-all duration-500"
                 style={{
-                  width: currentBg === i ? 24 : 8,
+                  width: currentBg === i ? 28 : 8,
                   height: 8,
-                  background: currentBg === i ? '#facc15' : 'rgba(255,255,255,0.4)',
+                  background: currentBg === i ? '#facc15' : 'rgba(255,255,255,0.35)',
                 }}
               />
             ))}
@@ -123,7 +128,9 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Logo mobile */}
           <div className="mb-8 lg:hidden flex items-center gap-2">
-            <img src={logotipo} alt="ContaBeni" className="h-8 w-auto object-contain rounded" />
+            <div className="overflow-hidden rounded-full border-2 shadow-sm" style={{ width: 32, height: 32, borderColor: 'var(--brand-primary)' }}>
+              <img src={logotipo} alt="ContaBeni" className="w-full h-full object-cover" />
+            </div>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800 }}>
               <span style={{ color: 'var(--text-primary)' }}>Conta</span>
               <span style={{ color: 'var(--brand-primary)' }}>Beni</span>
