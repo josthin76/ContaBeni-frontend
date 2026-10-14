@@ -46,6 +46,11 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    const empresaId = localStorage.getItem('empresaId')
+    if (empresaId) {
+      config.headers['x-empresa-id'] = empresaId
+      config.headers['empresa-id'] = empresaId
+    }
     return config
   },
   (error) => {

@@ -164,6 +164,52 @@ export function formatDateTime(value?: string | number | Date | null): string {
   return `${dd}/${mm}/${d.getFullYear()} ${hh}:${min}`
 }
 
+const LIST_KEYS = [
+  'data', 'items', 'categorias', 'categoriasGasto', 'categoriaGastos',
+  'gastos', 'results', 'rows', 'content', 'records', 'list',
+]
+
+export function unwrapList<T = unknown>(raw: unknown, depth = 0): T[] {
+  if (Array.isArray(raw)) return raw as T[]
+  if (!raw || typeof raw !== 'object' || depth > 3) return []
+  const obj = raw as Record<string, unknown>
+  for (const key of LIST_KEYS) {
+    if (Array.isArray(obj[key])) return obj[key] as T[]
+  }
+  if (obj.data && typeof obj.data === 'object') return unwrapList<T>(obj.data, depth + 1)
+  return []
+}
+
+export function unwrapEntity<T = unknown>(raw: unknown): T | null {
+  if (!raw || typeof raw !== 'object') return null
+  const obj = raw as Record<string, unknown>
+  if (obj.data && typeof obj.data === 'object' && !Array.isArray(obj.data)) return obj.data as T
+  return raw as T
+}
+
+export function isListPayload(raw: unknown, depth = 0): boolean {
+  if (Array.isArray(raw)) return true
+  if (!raw || typeof raw !== 'object' || depth > 3) return false
+  const obj = raw as Record<string, unknown>
+  if (LIST_KEYS.some(k => Array.isArray(obj[k]))) return true
+  return isListPayload(obj.data, depth + 1)
+}
+
+export function flattenCuentasContables(cuentas: Array<{ hijos?: unknown[] }> | unknown): any[] {
+  const list = Array.isArray(cuentas) ? cuentas : []
+  const out: any[] = []
+  const walk = (items: any[]) => {
+    for (const c of items) {
+      if (!c) continue
+      out.push(c)
+      if (Array.isArray(c.hijos) && c.hijos.length) walk(c.hijos)
+      if (Array.isArray(c.children) && c.children.length) walk(c.children)
+    }
+  }
+  walk(list)
+  return out
+}
+
 export function getInitials(name?: string | null): string {
   if (!name || typeof name !== 'string') return 'CB'
   const trimmed = name.trim()
