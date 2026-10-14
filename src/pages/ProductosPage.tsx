@@ -210,8 +210,8 @@ export default function ProductosPage() {
           </div>
 
           {/* Tabla productos */}
-          <div className="rounded-xl bg-white overflow-hidden" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
-            <table className="w-full text-sm">
+          <div className="rounded-xl bg-white overflow-x-auto" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
                   {['Nombre', 'SKU', 'Tipo', 'Precio', 'Stock', 'Estado'].map(h => (

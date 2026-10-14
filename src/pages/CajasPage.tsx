@@ -163,8 +163,8 @@ export default function CajasPage() {
 
       {/* Tab Transacciones */}
       {tab === 'transacciones' && (
-        <div className="rounded-xl bg-white overflow-hidden" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
-          <table className="w-full text-sm">
+        <div className="rounded-xl bg-white overflow-x-auto" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
+          <table className="w-full min-w-[620px] text-sm">
             <thead>
               <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
                 {['Fecha', 'Descripción', 'Cuenta', 'Tipo', 'Monto'].map(h => (

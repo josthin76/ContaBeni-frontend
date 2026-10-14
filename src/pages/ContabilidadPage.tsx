@@ -328,7 +328,8 @@ function LibroDiario() {
         </button>
       </div>
 
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[820px] text-sm">
         <thead>
           <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
             {['#', 'Fecha', 'Concepto / Glosa', 'Debe', 'Haber', 'Estado', ''].map(h => (
@@ -427,6 +428,7 @@ function LibroDiario() {
           )}
         </tbody>
       </table>
+      </div>
 
       <NuevoAsientoSlideOver
         open={openNuevoAsiento}
@@ -754,7 +756,8 @@ function LibroMayor() {
               <AmountCell amount={mayor.saldoFinal ?? 0} />
             </div>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
                 {['Fecha', 'Concepto / Glosa', 'Debe', 'Haber', 'Saldo'].map(h => (
@@ -794,6 +797,7 @@ function LibroMayor() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

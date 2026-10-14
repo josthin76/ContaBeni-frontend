@@ -50,8 +50,8 @@ export default function ProveedoresPage() {
         </button>
       </div>
 
-      <div className="rounded-xl bg-white overflow-hidden" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
-        <table className="w-full text-sm">
+      <div className="rounded-xl bg-white overflow-x-auto" style={{ boxShadow: '0 2px 8px rgba(26,18,8,0.08)' }}>
+        <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr style={{ background: 'var(--surface-light)', borderBottom: '1px solid var(--border-warm)' }}>
               {['Nombre', 'RIF / NIT', 'Contacto', 'Estado', 'Acciones'].map(h => (
